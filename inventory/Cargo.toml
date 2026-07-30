@@ -1,0 +1,15 @@
+[package]
+name = "kane-inventory"
+description = "Inventory and stock management for kane"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+thiserror = { workspace = true }
+
+[lints]
+workspace = true

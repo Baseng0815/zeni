@@ -1,0 +1,24 @@
+/* Placeholder stylesheet: enough structure to see the routing work, no design
+   decisions committed to yet. */
+
+:root {
+    color-scheme: light dark;
+    --gap: 1rem;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    line-height: 1.5;
+}
+
+#navbar {
+    display: flex;
+    gap: var(--gap);
+    padding: var(--gap);
+    border-bottom: 1px solid currentColor;
+}
+
+#content {
+    padding: var(--gap);
+}

@@ -1,0 +1,14 @@
+/target
+# dioxus-cli build output
+/web/target
+/web/dist
+.dioxus/
+
+# direnv / nix
+.direnv/
+
+# rustfmt backups
+**/*.rs.bk
+
+# local environment overrides
+.env

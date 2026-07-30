@@ -1,0 +1,28 @@
+[package]
+name = "kane-web"
+description = "kane's web backend and frontend"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+dioxus = { workspace = true, features = ["fullstack", "router"] }
+serde = { workspace = true }
+
+# The domain crates are server-only: they are optional and pulled in by the
+# `server` feature so none of their code reaches the wasm bundle. Anything that
+# has to cross the wire lives in `src/api/`, behind a serde-able DTO.
+finance = { workspace = true, optional = true }
+inventory = { workspace = true, optional = true }
+
+[features]
+default = ["web"]
+# Client half: compiled for wasm32-unknown-unknown by `dx serve`.
+web = ["dioxus/web"]
+# Server half: compiled natively, and the only side that sees the domain crates.
+server = ["dioxus/server", "dep:finance", "dep:inventory"]
+
+[lints]
+workspace = true

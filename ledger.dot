@@ -1,0 +1,15 @@
+digraph {
+    0 [ label = "Checking: 3686,13 €" ]
+    1 [ label = "Salary: -3200,00 €" ]
+    2 [ label = "Rent: 950,00 €" ]
+    3 [ label = "Groceries: 63,87 €" ]
+    4 [ label = "July salary (2026-07-30)" shape = box]
+    5 [ label = "July rent (2026-07-30)" shape = box]
+    6 [ label = "Weekly groceries (2026-07-30)" shape = box]
+    1 -> 4 [ label = "-3200,00 €" ]
+    4 -> 0 [ label = "3200,00 €" ]
+    0 -> 5 [ label = "-950,00 €" ]
+    5 -> 2 [ label = "950,00 €" ]
+    0 -> 6 [ label = "-63,87 €" ]
+    6 -> 3 [ label = "63,87 €" ]
+}

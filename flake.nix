@@ -39,6 +39,8 @@
             cmake
             # `dx` shells out to wasm-opt for release web builds.
             binaryen
+            # `dot`, for rendering the graphs written by `Ledger::save_as_graph`.
+            graphviz
             jetbrains.rust-rover
           ] ++ (with llvmPackages; [
             clang-tools

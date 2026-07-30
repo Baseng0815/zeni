@@ -21,10 +21,10 @@ repository = "https://github.com/bastianengel/kane"
 finance = { package = "kane-finance", path = "finance" }
 inventory = { package = "kane-inventory", path = "inventory" }
 
+derive_more = { version = "2", features = ["display", "from", "into"] }
 dioxus = "0.7.9"
 serde = { version = "1", features = ["derive"] }
 thiserror = "2"
-tracing = "0.1"
 
 [workspace.lints.rust]
 unsafe_op_in_unsafe_fn = "deny"

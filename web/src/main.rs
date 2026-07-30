@@ -25,10 +25,12 @@ mod views;
 mod server;
 
 use components::Navbar;
-use views::Account;
-use views::Expenses;
-use views::Home;
-use views::Stock;
+use views::{
+    Account,
+    Expenses,
+    Home,
+    Stock,
+};
 
 const MAIN_CSS: Asset = asset!("/assets/main.css");
 

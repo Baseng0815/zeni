@@ -8,8 +8,12 @@ authors.workspace = true
 repository.workspace = true
 
 [dependencies]
+derive_more = { workspace = true }
+jiff = "0.2.35"
+petgraph = "0.8.3"
 serde = { workspace = true }
 thiserror = { workspace = true }
+uuid = { version = "1.24.0", features = ["v7"] }
 
 [lints]
 workspace = true

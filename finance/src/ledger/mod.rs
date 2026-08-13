@@ -1,96 +1,85 @@
+use jiff::Timestamp;
+use uuid::Uuid;
+
 use crate::account::{
     Account,
     AccountId,
+    AccountType,
 };
 use crate::errors::{
     FinanceError,
     FinanceResult,
 };
-use crate::money::Money;
+use crate::ledger::store::LedgerStore;
 use crate::transaction::{
     Transaction,
     TransactionEntry,
     TransactionId,
 };
 
-mod display;
-mod graph;
+pub mod store;
 
-#[derive(Debug, Default)]
-pub struct Ledger {
-    accounts: Vec<Account>,
-    transactions: Vec<Transaction>,
+pub struct Ledger<S> {
+    store: S,
 }
 
-impl Ledger {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn accounts(&self) -> &[Account] {
-        &self.accounts
-    }
-
-    pub fn transactions(&self) -> &[Transaction] {
-        &self.transactions
-    }
-
-    pub fn account(
-        &self,
-        id: AccountId,
-    ) -> Option<&Account> {
-        self.accounts.iter().find(|account| account.id() == id)
-    }
-
-    pub fn add_account(
+impl<S: LedgerStore> Ledger<S> {
+    fn create_account(
         &mut self,
-        account: Account,
-    ) -> AccountId {
-        let id = account.id();
-        self.accounts.push(account);
-        id
+        description: String,
+        r#type: AccountType,
+    ) -> FinanceResult<Account> {
+        let created_at = Timestamp::now();
+        let id = AccountId::from(Uuid::new_v7(uuid_timestamp(created_at)));
+
+        let account = Account {
+            id,
+            created_at,
+            description,
+            r#type,
+        };
+
+        self.store.insert_account(account.clone())?;
+        Ok(account)
     }
 
-    pub fn post(
+    fn create_transaction(
         &mut self,
         description: String,
         entries: Vec<TransactionEntry>,
-    ) -> FinanceResult<TransactionId> {
-        let transaction = Transaction::new(description, entries)?;
-        let updates = self.updated_balances(&transaction)?;
+    ) -> FinanceResult<Transaction> {
+        self.ensure_balanced(&entries)?;
 
-        for (index, balance) in updates {
-            if let Some(account) = self.accounts.get_mut(index) {
-                account.set_balance(balance);
-            }
-        }
+        let created_at = Timestamp::now();
+        let id = TransactionId::from(Uuid::new_v7(uuid_timestamp(created_at)));
 
-        let id = transaction.id();
-        self.transactions.push(transaction);
+        let transaction = Transaction {
+            id,
+            created_at,
+            description,
+            entries,
+        };
 
-        Ok(id)
+        self.store.insert_transaction(transaction.clone())?;
+        Ok(transaction)
+    }
+}
+
+fn ensure_balanced(
+    &mut self,
+    entries: &[TransactionEntry],
+) -> FinanceResult {
+    let amount_sum = entries.iter().fold(0, |acc, entry| acc + entry.amount.amount);
+    if amount_sum != 0 {
+        Err(FinanceError::UnbalancedTransaction)?;
     }
 
-    fn updated_balances(
-        &self,
-        transaction: &Transaction,
-    ) -> FinanceResult<Vec<(usize, Money)>> {
-        let mut updates: Vec<(usize, Money)> = Vec::new();
+    Ok(())
+}
 
-        for entry in transaction.entries() {
-            let (index, account) = self
-                .accounts
-                .iter()
-                .enumerate()
-                .find(|(_, account)| account.id() == entry.account())
-                .ok_or(FinanceError::UnknownAccount(entry.account()))?;
+fn uuid_timestamp(timestamp: Timestamp) -> uuid::Timestamp {
+    let seconds = u64::try_from(timestamp.as_second()).unwrap_or_default();
+    let nanos = u32::try_from(timestamp.subsec_nanosecond()).unwrap_or_default();
 
-            match updates.iter_mut().find(|(updated, _)| *updated == index) {
-                Some((_, balance)) => *balance = balance.try_add(*entry.amount())?,
-                None => updates.push((index, account.balance().try_add(*entry.amount())?)),
-            }
-        }
-
-        Ok(updates)
-    }
+    uuid::Timestamp::from_unix(uuid::NoContext, seconds, nanos)
 }

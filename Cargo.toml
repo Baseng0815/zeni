@@ -11,15 +11,15 @@ version = "0.1.0"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 authors = ["Bastian Engel <bastian.engel00@gmail.com>"]
-repository = "https://github.com/bastianengel/kane"
+repository = "https://github.com/bastianengel/zeni"
 
 [workspace.dependencies]
-# Packages carry a `kane-` prefix so they never shadow a registry crate of the
+# Packages carry a `zeni-` prefix so they never shadow a registry crate of the
 # same name (notably `inventory`, which dioxus pulls in transitively for server
 # function registration). The dependency key is the unprefixed name, so callers
 # still write `finance::…` / `inventory::…`.
-finance = { package = "kane-finance", path = "finance" }
-inventory = { package = "kane-inventory", path = "inventory" }
+finance = { package = "zeni-finance", path = "finance" }
+inventory = { package = "zeni-inventory", path = "inventory" }
 
 derive_more = { version = "2", features = ["display", "from", "into"] }
 dioxus = "0.7.9"

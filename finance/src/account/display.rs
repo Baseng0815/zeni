@@ -6,6 +6,6 @@ impl Display for Account {
         &self,
         f: &mut std::fmt::Formatter<'_>,
     ) -> std::fmt::Result {
-        write!(f, "{}: {}", self.description, self.balance)
+        write!(f, "{}", self.description)
     }
 }

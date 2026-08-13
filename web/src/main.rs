@@ -1,4 +1,4 @@
-//! kane's web application — both halves of it.
+//! zeni's web application — both halves of it.
 //!
 //! This is a single dioxus-fullstack crate compiled twice: once to
 //! wasm32-unknown-unknown for the browser (the `web` feature) and once natively

@@ -1,6 +1,6 @@
 [package]
-name = "kane-web"
-description = "kane's web backend and frontend"
+name = "zeni-web"
+description = "zeni's web backend and frontend"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

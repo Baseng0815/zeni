@@ -1,8 +1,8 @@
-# kane
+# zeni
 
 Expense management with integrated inventory management.
 
-Kane tracks two things that are usually kept in separate apps but are really one
+Zeni tracks two things that are usually kept in separate apps but are really one
 problem: what you spent, and what you got for it. Buying groceries is both a
 ledger entry and a change in what is in the pantry.
 
@@ -13,7 +13,7 @@ backend has been chosen — module docs state what each module is for.
 ## Layout
 
 ```
-kane/
+zeni/
 ├── flake.nix        nix dev shell: nightly rust + wasm32 target, dioxus-cli
 ├── Cargo.toml       workspace root, shared deps and lints
 ├── finance/         expense tracking and the double-entry ledger
@@ -43,7 +43,7 @@ signatures to use DTOs from `src/api/` rather than domain types.
 ### Package naming
 
 Directories and code-level names are `finance`, `inventory`, `web`; the Cargo
-package names are `kane-finance`, `kane-inventory`, `kane-web`. The prefix avoids
+package names are `zeni-finance`, `zeni-inventory`, `zeni-web`. The prefix avoids
 shadowing a registry crate — `inventory` is a real crate on crates.io, pulled in
 transitively by dioxus for server-function registration. Dependents alias the
 packages back, so code still reads `use finance::…`.
@@ -67,7 +67,7 @@ Checks:
 
 ```sh
 cargo check --workspace
-cargo check -p kane-web --no-default-features --features server   # server half
+cargo check -p zeni-web --no-default-features --features server   # server half
 cargo clippy --workspace --all-targets
 cargo fmt --all                                                   # nightly only
 ```

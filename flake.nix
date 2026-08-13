@@ -1,5 +1,5 @@
 {
-  description = "kane — expense and inventory management";
+  description = "zeni — expense and inventory management";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
@@ -30,6 +30,12 @@
 
         # Single knob for the shell's LLVM/clang version (stdenv, tools).
         llvmPackages = pkgs.llvmPackages;
+
+        # nixpkgs defaults `cudaSupport` to false, which yields a CPU-only
+        # llama-server that silently ignores `-ngl` — ~7 t/s instead of ~92.
+        # Overriding per-package rather than via `config.cudaSupport` keeps the
+        # CUDA rebuild off every other package in the shell.
+        llamaCpp = pkgs.llama-cpp.override { cudaSupport = true; };
       in {
         devShells.default = (pkgs.mkShell.override { stdenv = llvmPackages.stdenv; }) {
           nativeBuildInputs = with pkgs; [
@@ -42,7 +48,10 @@
             # `dot`, for rendering the graphs written by `Ledger::save_as_graph`.
             graphviz
             jetbrains.rust-rover
-          ] ++ (with llvmPackages; [
+            # CUDA-only, so it drops out on darwin — `eachDefaultSystem` covers
+            # systems that cannot build it.
+          ] ++ lib.optional stdenv.isLinux llamaCpp
+            ++ (with llvmPackages; [
             clang-tools
             llvm
             lld

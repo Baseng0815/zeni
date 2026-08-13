@@ -14,12 +14,12 @@ Development happens inside the Nix dev shell (`nix develop`, or `direnv allow` o
 
 - Run the app (builds both halves, hot-reloads): `cd web && dx serve`
 - Type-check: `cargo check --workspace`
-- Check the server half of `web`: `cargo check -p kane-web --no-default-features --features server`
+- Check the server half of `web`: `cargo check -p zeni-web --no-default-features --features server`
 - Lint: `cargo clippy --workspace --all-targets`
 - Format: `cargo fmt --all` — must run on nightly (`rustfmt.toml` uses nightly-only options; stable silently skips them and reports spurious diffs). Under rustup: `cargo +nightly fmt --all`.
-- Test one crate: `cargo test -p kane-finance`; a single test: `cargo test -p kane-finance <test_name>`
+- Test one crate: `cargo test -p zeni-finance`; a single test: `cargo test -p zeni-finance <test_name>`
 
-Package names carry a `kane-` prefix (`kane-finance`, `kane-inventory`, `kane-web`) so they never shadow a registry crate (`inventory` is a real crate pulled in transitively by dioxus). Dependents alias them back, so imports read `use finance::…`.
+Package names carry a `zeni-` prefix (`zeni-finance`, `zeni-inventory`, `zeni-web`) so they never shadow a registry crate (`inventory` is a real crate pulled in transitively by dioxus). Dependents alias them back, so imports read `use finance::…`.
 
 ## Architecture
 
@@ -29,7 +29,7 @@ Three workspace crates. **Status: preliminary structure only** — no domain log
 - `inventory/` — items, stock lots, movements, shopping lists.
 - `web/` — dioxus-fullstack app: server and browser client in one crate.
 
-`finance` and `inventory` are pure domain crates: no HTTP, no SQL, no async runtime, and no dependency on each other. Each defines persistence traits in its `store` module and leaves the implementation to the host. The one place the two domains meet is a purchase (a ledger transaction plus a stock movement), and `web` is what joins them.
+`finance` and `inventory` are pure domain crates: no HTTP, no SQL, and no async runtime. Each defines persistence traits in its `store` module and leaves the implementation to the host. The one place the two domains meet is a purchase (a ledger transaction plus a stock movement), and `web` is what joins them.
 
 `web` is compiled twice: to `wasm32-unknown-unknown` for the browser (`web` feature, default) and natively for the server (`server` feature). The domain crates are optional dependencies enabled only by the `server` feature, so they can never reach the wasm bundle — anything crossing the wire must use serde DTOs from `web/src/api/`, not domain types.
 

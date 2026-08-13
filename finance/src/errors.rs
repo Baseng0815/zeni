@@ -1,4 +1,5 @@
 use crate::account::AccountId;
+use crate::ledger::store::LedgerStoreError;
 use crate::money::Currency;
 
 #[derive(Debug, thiserror::Error)]
@@ -7,12 +8,9 @@ pub enum FinanceError {
     EmptyTransaction,
     #[error("transaction entries do not balance")]
     UnbalancedTransaction,
-    #[error("unknown account {0}")]
-    UnknownAccount(AccountId),
-    #[error("currency mismatch: expected {expected}, got {actual}")]
-    CurrencyMismatch { expected: Currency, actual: Currency },
-    #[error("amount overflow")]
-    AmountOverflow,
+    #[error("currencies are different")]
+    DifferentCurrencies,
+    LedgerStoreError(#[from] LedgerStoreError)
 }
 
 pub type FinanceResult<T = ()> = Result<T, FinanceError>;

@@ -1,23 +1,24 @@
 use std::str::FromStr;
 
 use jiff::Timestamp;
+use schemars::JsonSchema;
+use serde::Deserialize;
 use zeni_finance::money::{
     Currency,
     Money,
 };
-use schemars::JsonSchema;
-use serde::Deserialize;
-use uuid::Uuid;
 
 use crate::errors::{
     InventoryError,
     InventoryResult,
 };
-use crate::item::Quantity;
-use crate::receipt::ReceiptHeader;
 use crate::receipt::extractors::{
     ExtractedArticle,
     ExtractedReceipt,
+};
+use crate::receipt::{
+    Quantity,
+    ReceiptHeader,
 };
 
 #[derive(Debug, Deserialize, JsonSchema)]
@@ -71,9 +72,7 @@ impl RawReceipt {
             .collect::<InventoryResult<Vec<_>>>()?;
 
         let header = ReceiptHeader {
-            id: Uuid::new_v7(zeni_finance::uuid_timestamp(created_at)).into(),
             description: self.merchant.clone().unwrap_or_default(),
-            created_at,
             purchased_at_date: parse_civil(self.purchased_at_date.as_deref(), "date")?,
             purchased_at_time: parse_civil(self.purchased_at_time.as_deref(), "time")?,
             total: parse_money(&self.total, currency)?,

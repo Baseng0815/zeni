@@ -12,7 +12,6 @@ use crate::errors::{
     FinanceResult,
 };
 use crate::money::Money;
-use crate::uuid_timestamp;
 
 mod display;
 

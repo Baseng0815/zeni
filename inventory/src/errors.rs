@@ -1,3 +1,5 @@
+use crate::warehouse::store::WarehouseStoreError;
+
 #[derive(Debug, thiserror::Error)]
 pub enum InventoryError {
     #[error("could not encode the receipt image")]
@@ -18,6 +20,8 @@ pub enum InventoryError {
     MalformedCivil { kind: &'static str, value: String },
     #[error("quantity is of kind `{0}` but carries no value")]
     MissingQuantity(&'static str),
+    #[error("warehouse store error: {0}")]
+    WarehouseStoreError(#[from] WarehouseStoreError),
 }
 
 pub type InventoryResult<T = ()> = Result<T, InventoryError>;

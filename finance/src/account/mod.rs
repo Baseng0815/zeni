@@ -1,5 +1,4 @@
 use crate::money::Money;
-use crate::uuid_timestamp;
 use derive_more::{
     Display,
     From,
@@ -25,7 +24,7 @@ pub enum AccountType {
     Income,
     Expense,
     Equity,
-    Custom(String),
+    Unknown,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Display, From, Into)]

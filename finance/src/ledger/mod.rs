@@ -80,7 +80,7 @@ impl<S: LedgerStore> Ledger<S> {
     }
 }
 
-fn uuid_timestamp(timestamp: Timestamp) -> uuid::Timestamp {
+pub(crate) fn uuid_timestamp(timestamp: Timestamp) -> uuid::Timestamp {
     let seconds = u64::try_from(timestamp.as_second()).unwrap_or_default();
     let nanos = u32::try_from(timestamp.subsec_nanosecond()).unwrap_or_default();
 

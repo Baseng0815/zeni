@@ -50,8 +50,7 @@
             jetbrains.rust-rover
             # CUDA-only, so it drops out on darwin — `eachDefaultSystem` covers
             # systems that cannot build it.
-          ] ++ lib.optional stdenv.isLinux llamaCpp
-            ++ (with llvmPackages; [
+          ] ++ (with llvmPackages; [
             clang-tools
             llvm
             lld

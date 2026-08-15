@@ -10,43 +10,41 @@ use crate::transaction::{
 };
 
 #[derive(Debug, thiserror::Error)]
-pub enum LedgerStoreError<E = ()> {
-    #[error("duplicate account id: {}")]
+pub enum LedgerStoreError {
+    #[error("duplicate account id: {0}")]
     DuplicateAccountId(AccountId),
-    #[error("duplicate transaction id: {}")]
+    #[error("duplicate transaction id: {0}")]
     DuplicateTransactionId(TransactionId),
-    #[error("no such account: {}")]
+    #[error("no such account: {0}")]
     NoSuchAccount(AccountId),
-    #[error("no such transaction: {}")]
+    #[error("no such transaction: {0}")]
     NoSuchTransaction(TransactionId),
-    #[error("domain error: {}")]
-    Domain(E),
+    #[error("domain error: {0}")]
+    Domain(String),
 }
 
-pub type LedgerStoreResult<T = (), E = ()> = Result<T, LedgerStoreError<E>>;
+pub type LedgerStoreResult<T = ()> = Result<T, LedgerStoreError>;
 
 pub trait LedgerStore {
-    type DomainError;
-
     async fn insert_account(
         &mut self,
         account: Account,
-    ) -> LedgerStoreResult<(), Self::DomainError>;
+    ) -> LedgerStoreResult;
 
     async fn get_account(
-        &mut self,
+        &self,
         id: AccountId,
-    ) -> LedgerStoreResult<Account, Self::DomainError>;
+    ) -> LedgerStoreResult<Account>;
 
     async fn insert_transaction(
         &mut self,
         transaction: Transaction,
-    ) -> LedgerStoreResult<(), Self::DomainError>;
+    ) -> LedgerStoreResult;
 
     async fn get_transaction(
-        &mut self,
+        &self,
         id: TransactionId,
-    ) -> LedgerStoreResult<Transaction, Self::DomainError>;
+    ) -> LedgerStoreResult<Transaction>;
 }
 
 pub struct InMemoryLedgerStore {
@@ -55,12 +53,10 @@ pub struct InMemoryLedgerStore {
 }
 
 impl LedgerStore for InMemoryLedgerStore {
-    type DomainError = ();
-
     async fn insert_account(
         &mut self,
         account: Account,
-    ) -> LedgerStoreResult<(), Self::DomainError> {
+    ) -> LedgerStoreResult {
         if self.get_account(account.id()).await.is_ok() {
             Err(LedgerStoreError::DuplicateAccountId(account.id()))?;
         }
@@ -70,9 +66,9 @@ impl LedgerStore for InMemoryLedgerStore {
     }
 
     async fn get_account(
-        &mut self,
+        &self,
         id: AccountId,
-    ) -> LedgerStoreResult<Account, Self::DomainError> {
+    ) -> LedgerStoreResult<Account> {
         self.accounts
             .iter()
             .find(|account| account.id() == id)
@@ -83,7 +79,7 @@ impl LedgerStore for InMemoryLedgerStore {
     async fn insert_transaction(
         &mut self,
         transaction: Transaction,
-    ) -> LedgerStoreResult<(), Self::DomainError> {
+    ) -> LedgerStoreResult {
         if self.get_transaction(transaction.id()).await.is_ok() {
             Err(LedgerStoreError::DuplicateTransactionId(transaction.id()))?;
         }
@@ -93,9 +89,9 @@ impl LedgerStore for InMemoryLedgerStore {
     }
 
     async fn get_transaction(
-        &mut self,
+        &self,
         id: TransactionId,
-    ) -> LedgerStoreResult<Transaction, Self::DomainError> {
+    ) -> LedgerStoreResult<Transaction> {
         self.transactions
             .iter()
             .find(|transaction| transaction.id() == id)

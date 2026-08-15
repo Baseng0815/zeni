@@ -13,10 +13,7 @@ use jiff::civil::{
 use uuid::Uuid;
 use zeni_finance::money::Money;
 
-use crate::item::{
-    ItemId,
-    Quantity,
-};
+use crate::item::ItemId;
 
 pub mod extractors;
 
@@ -40,16 +37,8 @@ pub struct ReceiptHeader {
 }
 
 impl ReceiptHeader {
-    pub fn id(&self) -> ReceiptId {
-        self.id
-    }
-
     pub fn description(&self) -> &str {
         &self.description
-    }
-
-    pub fn created_at(&self) -> Timestamp {
-        self.created_at
     }
 
     pub fn purchased_at_date(&self) -> Option<Date> {

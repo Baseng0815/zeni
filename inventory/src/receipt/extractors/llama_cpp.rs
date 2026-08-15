@@ -18,6 +18,7 @@ use crate::receipt::extractors::{
     ExtractedReceipt,
     ReceiptExtractor,
 };
+use crate::warehouse::uuid_timestamp;
 
 const EXTRACTION_PROMPT: &str = "You are a receipt scanner. Transcribe the receipt in the image \
     into the requested schema. Copy amounts exactly as printed, without recomputing them, and put \
@@ -128,7 +129,7 @@ impl MediaFile {
         let mut jpeg = Vec::new();
         JpegEncoder::new_with_quality(&mut jpeg, JPEG_QUALITY).encode_image(&rgb)?;
 
-        let name = format!("zeni-receipt-{}.jpg", Uuid::new_v7(zeni_finance::uuid_timestamp(Timestamp::now())));
+        let name = format!("zeni-receipt-{}.jpg", Uuid::new_v7(uuid_timestamp(Timestamp::now())));
         let path = PathBuf::from(MEDIA_PATH).join(&name);
         std::fs::write(&path, jpeg)?;
 

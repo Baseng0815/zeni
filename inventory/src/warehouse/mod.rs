@@ -17,7 +17,7 @@ pub struct Warehouse<S> {
 }
 
 impl<S: WarehouseStore> Warehouse<S> {
-    pub fn create_item(
+    pub async fn create_item(
         &mut self,
         description: String,
         r#type: ItemType,
@@ -32,22 +32,22 @@ impl<S: WarehouseStore> Warehouse<S> {
             r#type,
         };
 
-        self.store.insert_item(item.clone())?;
+        self.store.insert_item(item.clone()).await?;
         Ok(item)
     }
 
-    pub fn create_receipt(
+    pub async fn create_receipt(
         &mut self,
         extracted_receipt: ExtractedReceipt,
     ) -> InventoryResult {
         let created_at = Timestamp::now();
         let id = ItemId::from(Uuid::new_v7(uuid_timestamp(created_at)));
 
-
+        todo!()
     }
 }
 
-fn uuid_timestamp(timestamp: Timestamp) -> uuid::Timestamp {
+pub(crate) fn uuid_timestamp(timestamp: Timestamp) -> uuid::Timestamp {
     let seconds = u64::try_from(timestamp.as_second()).unwrap_or_default();
     let nanos = u32::try_from(timestamp.subsec_nanosecond()).unwrap_or_default();
 

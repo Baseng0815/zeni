@@ -4,7 +4,6 @@ use derive_more::{
     Into,
 };
 use jiff::Timestamp;
-use zeni_finance::uuid_timestamp;
 use uuid::Uuid;
 
 pub mod display;
@@ -22,7 +21,7 @@ pub enum ItemType {
     Grocery,
     Drink,
     Household,
-    Custom(String),
+    Unknown,
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Display, From, Into)]

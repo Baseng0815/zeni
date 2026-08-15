@@ -2,8 +2,10 @@ use image::DynamicImage;
 use zeni_finance::money::Money;
 
 use crate::errors::InventoryResult;
-use crate::item::Quantity;
-use crate::receipt::ReceiptHeader;
+use crate::receipt::{
+    Quantity,
+    ReceiptHeader,
+};
 
 pub mod anthropic;
 pub mod llama_cpp;

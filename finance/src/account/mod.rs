@@ -8,7 +8,7 @@ use derive_more::{
 use jiff::Timestamp;
 use uuid::Uuid;
 
-mod display;
+pub mod display;
 
 #[derive(Debug, Clone)]
 pub struct Account {
@@ -25,25 +25,26 @@ pub enum AccountType {
     Income,
     Expense,
     Equity,
+    Custom(String),
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Display, From, Into)]
+pub struct AccountId(Uuid);
 
 impl Account {
     pub fn id(&self) -> AccountId {
         self.id
     }
 
-    pub fn description(&self) -> &str {
-        &self.description
-    }
-
     pub fn created_at(&self) -> Timestamp {
         self.created_at
+    }
+
+    pub fn description(&self) -> &str {
+        &self.description
     }
 
     pub fn r#type(&self) -> &AccountType {
         &self.r#type
     }
 }
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Display, From, Into)]
-pub struct AccountId(Uuid);

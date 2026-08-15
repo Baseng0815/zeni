@@ -7,31 +7,41 @@ use jiff::Timestamp;
 use zeni_finance::uuid_timestamp;
 use uuid::Uuid;
 
-#[derive(Debug)]
+pub mod display;
+
+#[derive(Debug, Clone)]
 pub struct Item {
-    pub id: ItemId,
-    pub description: String,
-    pub quantity: Quantity,
+    pub(crate) id: ItemId,
+    pub(crate) created_at: Timestamp,
+    pub(crate) description: String,
+    pub(crate) r#type: ItemType,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Quantity {
-    Count(u64),
-    Weight(u64),
+#[derive(Debug, Clone, Copy, Display)]
+pub enum ItemType {
+    Grocery,
+    Drink,
+    Household,
+    Custom(String),
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Display, From, Into)]
 pub struct ItemId(Uuid);
 
 impl Item {
-    pub fn new(
-        description: String,
-        quantity: Quantity,
-    ) -> Self {
-        Self {
-            id: Uuid::new_v7(uuid_timestamp(Timestamp::now())).into(),
-            description,
-            quantity,
-        }
+    pub fn id(&self) -> ItemId {
+        self.id
+    }
+
+    pub fn created_at(&self) -> Timestamp {
+        self.created_at
+    }
+
+    pub fn description(&self) -> &str {
+        &self.description
+    }
+
+    pub fn r#type(&self) -> ItemType {
+        self.r#type
     }
 }

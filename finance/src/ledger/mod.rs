@@ -24,7 +24,7 @@ pub struct Ledger<S> {
 }
 
 impl<S: LedgerStore> Ledger<S> {
-    fn create_account(
+    pub async fn create_account(
         &mut self,
         description: String,
         r#type: AccountType,
@@ -39,16 +39,16 @@ impl<S: LedgerStore> Ledger<S> {
             r#type,
         };
 
-        self.store.insert_account(account.clone())?;
+        self.store.insert_account(account.clone()).await?;
         Ok(account)
     }
 
-    fn create_transaction(
+    pub async fn create_transaction(
         &mut self,
         description: String,
         entries: Vec<TransactionEntry>,
     ) -> FinanceResult<Transaction> {
-        self.ensure_balanced(&entries)?;
+        self.error_if_unbalanced(&entries)?;
 
         let created_at = Timestamp::now();
         let id = TransactionId::from(Uuid::new_v7(uuid_timestamp(created_at)));
@@ -60,21 +60,24 @@ impl<S: LedgerStore> Ledger<S> {
             entries,
         };
 
-        self.store.insert_transaction(transaction.clone())?;
+        self.store.insert_transaction(transaction.clone()).await?;
         Ok(transaction)
     }
-}
 
-fn ensure_balanced(
-    &mut self,
-    entries: &[TransactionEntry],
-) -> FinanceResult {
-    let amount_sum = entries.iter().fold(0, |acc, entry| acc + entry.amount.amount);
-    if amount_sum != 0 {
-        Err(FinanceError::UnbalancedTransaction)?;
+    fn error_if_unbalanced(
+        &mut self,
+        entries: &[TransactionEntry],
+    ) -> FinanceResult {
+        let amount_sum = entries
+            .iter()
+            .fold(0, |acc, entry| acc + entry.amount.amount);
+
+        if amount_sum != 0 {
+            Err(FinanceError::UnbalancedTransaction)?;
+        }
+
+        Ok(())
     }
-
-    Ok(())
 }
 
 fn uuid_timestamp(timestamp: Timestamp) -> uuid::Timestamp {

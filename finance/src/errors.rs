@@ -10,6 +10,7 @@ pub enum FinanceError {
     UnbalancedTransaction,
     #[error("currencies are different")]
     DifferentCurrencies,
+    #[error("ledger store error: {}")]
     LedgerStoreError(#[from] LedgerStoreError)
 }
 

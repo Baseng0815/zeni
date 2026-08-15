@@ -9,12 +9,18 @@ use crate::transaction::{
     TransactionId,
 };
 
+#[derive(Debug, thiserror::Error)]
 pub enum LedgerStoreError<E = ()> {
+    #[error("duplicate account id: {}")]
     DuplicateAccountId(AccountId),
+    #[error("duplicate transaction id: {}")]
     DuplicateTransactionId(TransactionId),
+    #[error("no such account: {}")]
     NoSuchAccount(AccountId),
+    #[error("no such transaction: {}")]
     NoSuchTransaction(TransactionId),
-    Domain(#[from] E),
+    #[error("domain error: {}")]
+    Domain(E),
 }
 
 pub type LedgerStoreResult<T = (), E = ()> = Result<T, LedgerStoreError<E>>;

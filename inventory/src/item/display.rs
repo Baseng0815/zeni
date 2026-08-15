@@ -1,7 +1,7 @@
-use crate::account::Account;
+use crate::item::Item;
 use std::fmt::Display;
 
-impl Display for Account {
+impl Display for Item {
     fn fmt(
         &self,
         f: &mut std::fmt::Formatter<'_>,

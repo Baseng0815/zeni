@@ -4,6 +4,10 @@ use derive_more::{
     Into,
 };
 use jiff::Timestamp;
+use serde::{
+    Deserialize,
+    Serialize,
+};
 use uuid::Uuid;
 
 use crate::account::AccountId;
@@ -15,7 +19,7 @@ use crate::money::Money;
 
 mod display;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Transaction {
     pub(crate) id: TransactionId,
     pub(crate) created_at: Timestamp,
@@ -41,11 +45,11 @@ impl Transaction {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct TransactionEntry {
     pub account: AccountId,
     pub amount: Money,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Display, From, Into)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Display, From, Into, Serialize, Deserialize)]
 pub struct TransactionId(Uuid);

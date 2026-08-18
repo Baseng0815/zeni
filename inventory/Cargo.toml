@@ -9,18 +9,35 @@ repository.workspace = true
 
 [dependencies]
 derive_more.workspace = true
-image = "0.25.10"
-jiff = "0.2.35"
-schemars = "1"
+image = { version = "0.25.10", optional = true }
+jiff = { version = "0.2.35", features = ["serde"] }
+schemars = { version = "1", optional = true }
 serde = { workspace = true }
 serde_json = "1"
 thiserror.workspace = true
-uuid = { version = "1.24.0", features = ["v7"] }
+uuid = { version = "1.24.0", features = ["v7", "serde"] }
 zeni-finance = { version = "0.1.0", path = "../finance" }
-reqwest = { version = "0.13.4", features = ["json"] }
+reqwest = { version = "0.13.4", features = ["json"], optional = true }
+
+[features]
+default = ["extractors"]
+# Receipt extraction: the only part of this crate that needs an HTTP client and
+# image decoding, and so the only part that cannot compile to wasm. Turning it
+# off leaves the domain types, which `web` shares with its browser half.
+extractors = ["dep:image", "dep:reqwest", "dep:schemars"]
+
+# On wasm both crates need the browser to supply what the platform otherwise
+# would: `getrandom` for uuid v7, and `Date`/`Intl` for jiff's clock.
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+jiff = { version = "0.2.35", features = ["js"] }
+uuid = { version = "1.24.0", features = ["js"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+[[example]]
+name = "casa-del-mondo"
+required-features = ["extractors"]
 
 [lints]
 workspace = true

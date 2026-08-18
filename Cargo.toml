@@ -19,7 +19,9 @@ repository = "https://github.com/bastianengel/zeni"
 # function registration). The dependency key is the unprefixed name, so callers
 # still write `finance::…` / `inventory::…`.
 finance = { package = "zeni-finance", path = "finance" }
-inventory = { package = "zeni-inventory", path = "inventory" }
+# Default-off `extractors`, so a dependent that compiles to wasm gets only the
+# domain types. Enable `inventory/extractors` on the native side that needs it.
+inventory = { package = "zeni-inventory", path = "inventory", default-features = false }
 
 derive_more = { version = "2", features = ["display", "from", "into"] }
 dioxus = "0.7.9"

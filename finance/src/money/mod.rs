@@ -1,3 +1,8 @@
+use serde::{
+    Deserialize,
+    Serialize,
+};
+
 use crate::errors::{
     FinanceError,
     FinanceResult,
@@ -5,13 +10,13 @@ use crate::errors::{
 
 mod display;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Money {
     pub amount: i128,
     pub currency: Currency,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Currency {
     EUR,
 }

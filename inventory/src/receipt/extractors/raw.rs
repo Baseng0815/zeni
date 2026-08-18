@@ -17,13 +17,14 @@ use crate::receipt::extractors::{
     ExtractedReceipt,
 };
 use crate::receipt::{
+    Merchant,
     Quantity,
     ReceiptHeader,
 };
 
 #[derive(Debug, Deserialize, JsonSchema)]
 pub(crate) struct RawReceipt {
-    pub(crate) merchant: Option<String>,
+    pub(crate) merchant: Option<Merchant>,
     pub(crate) purchased_at_date: Option<String>,
     pub(crate) purchased_at_time: Option<String>,
     pub(crate) currency_code: String,
@@ -72,7 +73,6 @@ impl RawReceipt {
             .collect::<InventoryResult<Vec<_>>>()?;
 
         let header = ReceiptHeader {
-            description: self.merchant.clone().unwrap_or_default(),
             purchased_at_date: parse_civil(self.purchased_at_date.as_deref(), "date")?,
             purchased_at_time: parse_civil(self.purchased_at_time.as_deref(), "time")?,
             total: parse_money(&self.total, currency)?,

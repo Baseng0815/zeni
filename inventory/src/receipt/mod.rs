@@ -10,6 +10,12 @@ use jiff::civil::{
     Date,
     Time,
 };
+#[cfg(feature = "extractors")]
+use schemars::JsonSchema;
+use serde::{
+    Deserialize,
+    Serialize,
+};
 use uuid::Uuid;
 use zeni_finance::money::Money;
 
@@ -17,7 +23,7 @@ use crate::item::ItemId;
 
 pub mod extractors;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Receipt {
     pub(crate) id: ReceiptId,
     pub(crate) created_at: Timestamp,
@@ -25,22 +31,24 @@ pub struct Receipt {
     pub(crate) articles: Vec<ReceiptArticle>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReceiptHeader {
-    pub(crate) description: String,
     pub(crate) purchased_at_date: Option<Date>,
     pub(crate) purchased_at_time: Option<Time>,
     pub(crate) total: Money,
-    pub(crate) merchant: Option<String>,
+    pub(crate) merchant: Option<Merchant>,
     pub(crate) additional_fields: HashMap<String, String>,
     pub(crate) raw_ocr: String,
 }
 
-impl ReceiptHeader {
-    pub fn description(&self) -> &str {
-        &self.description
-    }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "extractors", derive(JsonSchema))]
+pub struct Merchant {
+    pub(crate) name: String,
+    pub(crate) address: String,
+}
 
+impl ReceiptHeader {
     pub fn purchased_at_date(&self) -> Option<Date> {
         self.purchased_at_date
     }
@@ -53,7 +61,7 @@ impl ReceiptHeader {
         self.total
     }
 
-    pub fn merchant(&self) -> Option<&String> {
+    pub fn merchant(&self) -> Option<&Merchant> {
         self.merchant.as_ref()
     }
 
@@ -66,7 +74,7 @@ impl ReceiptHeader {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct ReceiptArticle {
     pub(crate) item: ItemId,
     pub(crate) unit_price: Money,
@@ -92,11 +100,11 @@ impl ReceiptArticle {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Quantity {
     Count(u64),
     Weight(u64),
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Display, From, Into)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Display, From, Into, Serialize, Deserialize)]
 pub struct ReceiptId(Uuid);

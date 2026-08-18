@@ -12,8 +12,16 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      rust-overlay,
+      flake-utils,
+      ...
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
       let
         pkgs = import nixpkgs {
           inherit system;
@@ -23,10 +31,18 @@
 
         # wasm32 is not optional here: `dx serve` builds the client half of the
         # fullstack app for wasm32-unknown-unknown and the server half natively.
-        rustToolchain = pkgs.rust-bin.selectLatestNightlyWith (toolchain: toolchain.default.override {
-          extensions = [ "rust-src" "rust-analyzer" "clippy" "rustfmt" ];
-          targets = [ "wasm32-unknown-unknown" ];
-        });
+        rustToolchain = pkgs.rust-bin.selectLatestNightlyWith (
+          toolchain:
+          toolchain.default.override {
+            extensions = [
+              "rust-src"
+              "rust-analyzer"
+              "clippy"
+              "rustfmt"
+            ];
+            targets = [ "wasm32-unknown-unknown" ];
+          }
+        );
 
         # Single knob for the shell's LLVM/clang version (stdenv, tools).
         llvmPackages = pkgs.llvmPackages;
@@ -36,26 +52,31 @@
         # Overriding per-package rather than via `config.cudaSupport` keeps the
         # CUDA rebuild off every other package in the shell.
         llamaCpp = pkgs.llama-cpp.override { cudaSupport = true; };
-      in {
+      in
+      {
         devShells.default = (pkgs.mkShell.override { stdenv = llvmPackages.stdenv; }) {
-          nativeBuildInputs = with pkgs; [
-            rustToolchain
-            dioxus-cli
-            pkg-config
-            cmake
-            # `dx` shells out to wasm-opt for release web builds.
-            binaryen
-            # `dot`, for rendering the graphs written by `Ledger::save_as_graph`.
-            graphviz
-            jetbrains.rust-rover
-            # CUDA-only, so it drops out on darwin — `eachDefaultSystem` covers
-            # systems that cannot build it.
-          ] ++ (with llvmPackages; [
-            clang-tools
-            llvm
-            lld
-            lldb
-          ]);
+          nativeBuildInputs =
+            with pkgs;
+            [
+              rustToolchain
+              dioxus-cli
+              pkg-config
+              cmake
+              # `dx` shells out to wasm-opt for release web builds.
+              binaryen
+              # `dot`, for rendering the graphs written by `Ledger::save_as_graph`.
+              graphviz
+              jetbrains.rust-rover
+              # CUDA-only, so it drops out on darwin — `eachDefaultSystem` covers
+              # systems that cannot build it.
+            ]
+            ++ [llamaCpp]
+            ++ (with llvmPackages; [
+              clang-tools
+              llvm
+              lld
+              lldb
+            ]);
 
           buildInputs = with pkgs; [
             openssl

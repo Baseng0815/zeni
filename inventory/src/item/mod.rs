@@ -4,11 +4,15 @@ use derive_more::{
     Into,
 };
 use jiff::Timestamp;
+use serde::{
+    Deserialize,
+    Serialize,
+};
 use uuid::Uuid;
 
 pub mod display;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Item {
     pub(crate) id: ItemId,
     pub(crate) created_at: Timestamp,
@@ -16,7 +20,7 @@ pub struct Item {
     pub(crate) r#type: ItemType,
 }
 
-#[derive(Debug, Clone, Copy, Display)]
+#[derive(Debug, Clone, Copy, Display, Serialize, Deserialize)]
 pub enum ItemType {
     Grocery,
     Drink,
@@ -24,7 +28,7 @@ pub enum ItemType {
     Unknown,
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Display, From, Into)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Display, From, Into, Serialize, Deserialize)]
 pub struct ItemId(Uuid);
 
 impl Item {

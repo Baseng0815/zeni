@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use image::DynamicImage;
 use image::codecs::jpeg::JpegEncoder;
+use image::imageops::FilterType;
 use jiff::Timestamp;
 use serde::{
     Deserialize,
@@ -22,10 +23,18 @@ use crate::warehouse::uuid_timestamp;
 
 const EXTRACTION_PROMPT: &str = "You are a receipt scanner. Transcribe the receipt in the image \
     into the requested schema. Copy amounts exactly as printed, without recomputing them, and put \
-    the full unmodified text into `raw_text`. Give `currency_code` as an ISO-4217 code, dates as \
-    YYYY-MM-DD and times as HH:MM:SS. Omit fields the receipt does not show.";
+    the full unmodified text into `raw_text`. Give `currency_code` as an ISO-4217 code. Fill \
+    `merchant` from the business name and address printed at the top. Convert the printed purchase \
+    date and time into `purchased_at_date` as YYYY-MM-DD and `purchased_at_time` as HH:MM:SS, \
+    whatever format the receipt prints them in. Omit fields the receipt does not show.";
 
 const JPEG_QUALITY: u8 = 90;
+
+/// Long edge the image is fitted to: enough patches for small print, few enough to keep prefill cheap.
+const TARGET_EDGE: u32 = 1568;
+
+/// Bounds a runaway generation instead of letting it fill the server's context.
+const MAX_TOKENS: u32 = 4096;
 
 /// Must match the `--media-path` the server was started with.
 const MEDIA_PATH: &str = "/tmp";
@@ -39,7 +48,15 @@ pub struct LlamaCppExtractor {
 struct RequestShape {
     messages: Vec<Message>,
     temperature: f32,
+    max_tokens: u32,
     response_format: ResponseFormat,
+    chat_template_kwargs: ChatTemplateKwargs,
+}
+
+/// Qwen's template opens a `<think>` block unless told otherwise, costing thousands of tokens.
+#[derive(Serialize)]
+struct ChatTemplateKwargs {
+    enable_thinking: bool,
 }
 
 #[derive(Serialize)]
@@ -107,12 +124,14 @@ impl RequestShape {
                 },
             ],
             temperature: 0.0,
+            max_tokens: MAX_TOKENS,
             response_format: ResponseFormat::JsonSchema {
                 json_schema: SchemaSpec {
                     name: "receipt".to_owned(),
                     schema: schemars::schema_for!(RawReceipt),
                 },
             },
+            chat_template_kwargs: ChatTemplateKwargs { enable_thinking: false },
         }
     }
 }
@@ -125,7 +144,9 @@ struct MediaFile {
 
 impl MediaFile {
     fn write(image: &DynamicImage) -> InventoryResult<Self> {
-        let rgb = image.to_rgb8();
+        let rgb = image
+            .resize(TARGET_EDGE, TARGET_EDGE, FilterType::Lanczos3)
+            .to_rgb8();
         let mut jpeg = Vec::new();
         JpegEncoder::new_with_quality(&mut jpeg, JPEG_QUALITY).encode_image(&rgb)?;
 
@@ -184,8 +205,6 @@ impl ReceiptExtractor for LlamaCppExtractor {
             .ok_or(InventoryError::EmptyResponse)?
             .message
             .content;
-
-        eprintln!("content = {:#?}", content);
 
         serde_json::from_str::<RawReceipt>(&content)?.into_extraction()
     }

@@ -3,6 +3,8 @@ use std::path::PathBuf;
 use image::ImageReader;
 use zeni_inventory::receipt::extractors::ReceiptExtractor;
 use zeni_inventory::receipt::extractors::llama_cpp::LlamaCppExtractor;
+use zeni_inventory::warehouse::Warehouse;
+use zeni_inventory::warehouse::store::InMemoryWarehouseStore;
 
 #[tokio::main]
 async fn main() {
@@ -17,7 +19,10 @@ async fn main() {
     };
 
     let mut extractor = LlamaCppExtractor::new(endpoint);
-    let extraction = extractor.extract_image(&image).await.unwrap();
-    eprintln!("header = {:#?}", extraction.header);
-    eprintln!("articles = {:#?}", extraction.articles);
+    let extracted_receipt = extractor.extract_image(&image).await.unwrap();
+    eprintln!("extracted_receipt = {:#?}", extracted_receipt);
+
+    let warehouse_store = InMemoryWarehouseStore::default();
+    let mut warehouse = Warehouse::new(warehouse_store);
+    warehouse.create_receipt(extracted_receipt).await;
 }

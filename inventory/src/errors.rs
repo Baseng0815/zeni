@@ -2,10 +2,12 @@ use crate::warehouse::store::WarehouseStoreError;
 
 #[derive(Debug, thiserror::Error)]
 pub enum InventoryError {
+    #[cfg(feature = "extractors")]
     #[error("could not encode the receipt image")]
     ImageEncode(#[from] image::ImageError),
     #[error("could not write the receipt image into the media path")]
     MediaWrite(#[from] std::io::Error),
+    #[cfg(feature = "extractors")]
     #[error("the extractor request failed")]
     Request(#[from] reqwest::Error),
     #[error("the extractor returned no choices")]

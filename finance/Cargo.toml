@@ -9,10 +9,16 @@ repository.workspace = true
 
 [dependencies]
 derive_more = { workspace = true }
-jiff = "0.2.35"
+jiff = { version = "0.2.35", features = ["serde"] }
 serde = { workspace = true }
 thiserror = { workspace = true }
-uuid = { version = "1.24.0", features = ["v7"] }
+uuid = { version = "1.24.0", features = ["v7", "serde"] }
+
+# On wasm both crates need the browser to supply what the platform otherwise
+# would: `getrandom` for uuid v7, and `Date`/`Intl` for jiff's clock.
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+jiff = { version = "0.2.35", features = ["js"] }
+uuid = { version = "1.24.0", features = ["js"] }
 
 [lints]
 workspace = true

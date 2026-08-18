@@ -7,6 +7,7 @@ use crate::item::{
     ItemId,
     ItemType,
 };
+use crate::receipt::ReceiptId;
 use crate::receipt::extractors::ExtractedReceipt;
 use crate::warehouse::store::WarehouseStore;
 
@@ -17,6 +18,10 @@ pub struct Warehouse<S> {
 }
 
 impl<S: WarehouseStore> Warehouse<S> {
+    pub fn new(store: S) -> Self {
+        Self { store }
+    }
+
     pub async fn create_item(
         &mut self,
         description: String,
@@ -41,7 +46,7 @@ impl<S: WarehouseStore> Warehouse<S> {
         extracted_receipt: ExtractedReceipt,
     ) -> InventoryResult {
         let created_at = Timestamp::now();
-        let id = ItemId::from(Uuid::new_v7(uuid_timestamp(created_at)));
+        let id = ReceiptId::from(Uuid::new_v7(uuid_timestamp(created_at)));
 
         todo!()
     }

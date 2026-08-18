@@ -11,18 +11,19 @@ repository.workspace = true
 dioxus = { workspace = true, features = ["fullstack", "router"] }
 serde = { workspace = true }
 
-# The domain crates are server-only: they are optional and pulled in by the
-# `server` feature so none of their code reaches the wasm bundle. Anything that
-# has to cross the wire lives in `src/api/`, behind a serde-able DTO.
-finance = { workspace = true, optional = true }
-inventory = { workspace = true, optional = true }
+# Both halves see the domain crates, so server functions can take and return
+# domain types directly. The workspace entry leaves `inventory`'s `extractors`
+# feature off — it pulls in an HTTP client and image decoding and cannot compile
+# to wasm — and the `server` feature below turns it back on.
+finance = { workspace = true }
+inventory = { workspace = true }
 
 [features]
 default = ["web"]
 # Client half: compiled for wasm32-unknown-unknown by `dx serve`.
 web = ["dioxus/web"]
-# Server half: compiled natively, and the only side that sees the domain crates.
-server = ["dioxus/server", "dep:finance", "dep:inventory"]
+# Server half: compiled natively, and the only side that runs extraction.
+server = ["dioxus/server", "inventory/extractors"]
 
 [lints]
 workspace = true

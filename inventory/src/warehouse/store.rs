@@ -30,6 +30,7 @@ pub trait WarehouseStore {
     ) -> WarehouseStoreResult<Item>;
 }
 
+#[derive(Default)]
 pub struct InMemoryWarehouseStore {
     items: Vec<Item>,
     receipts: Vec<Receipt>,

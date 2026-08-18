@@ -5,11 +5,15 @@ use derive_more::{
     Into,
 };
 use jiff::Timestamp;
+use serde::{
+    Deserialize,
+    Serialize,
+};
 use uuid::Uuid;
 
 pub mod display;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Account {
     pub(crate) id: AccountId,
     pub(crate) created_at: Timestamp,
@@ -17,7 +21,7 @@ pub struct Account {
     pub(crate) r#type: AccountType,
 }
 
-#[derive(Debug, Clone, Copy, Display)]
+#[derive(Debug, Clone, Copy, Display, Serialize, Deserialize)]
 pub enum AccountType {
     Asset,
     Liability,
@@ -27,7 +31,7 @@ pub enum AccountType {
     Unknown,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Display, From, Into)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Display, From, Into, Serialize, Deserialize)]
 pub struct AccountId(Uuid);
 
 impl Account {
